@@ -14,7 +14,9 @@ export class Forms extends Component {
             erorrs: "",
             alert: false,
             masseg: "",
-            weatherData:[]
+            weatherData: [],
+            alerte:false,
+            massege:''
         }
 
     }
@@ -30,79 +32,101 @@ export class Forms extends Component {
 
     submitData = async (e) => {
         e.preventDefault();
+
         try {
+            console.log(process.env.REACT_APP_BACKEND_URL)
+            console.log(this.state.latitude)
             let axiosResponse = await axios.get(`https://eu1.locationiq.com/v1/search.php?key=pk.c29ec7745248a3f12771c0a5c3f3fd9e&q=${this.state.displayName}&format=json`)
-            const axiosWeatherData = await axios.get(`http://localhost:8000/weather?lat=31.95&lon=35.91&searchQuery=${this.state.displayName}`)
+            console.log(axiosResponse)
             this.setState({
-                displayName: axiosResponse.data[0].display_name,
                 longitude: axiosResponse.data[0].lon,
                 latitude: axiosResponse.data[0].lat,
                 display: true,
                 alert: false,
-                weatherData: axiosWeatherData.data
 
             })
-            console.log(this.setState.weatherData)
+            console.log(this.state.displayName)
+
 
 
         }
+
         catch (masseg) {
             this.setState({
                 masseg: 'enter valid',
-                alert: true
+                alert: true,
+
+
+
             })
-
-            // console.log(this.setState.longitude)
-            // console.log(this.setState.latitude)
-
-
+            // if (this.state.displayName === "Amman" || this.state.displayName === "Seattle" || this.state.displayName === "Paris") {
+            //     return this.setState({
+            //         alerte: true,
+            //         massege: 'please enter valid city name'
+            //     })
+            // }
         }
-        console.log(this.state.weatherData)
+        try {
+            let axiosWeatherData = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/weather?lat=${this.state.latitude}&lon=${this.state.longitude}&searchQuery=${this.state.displayName}`)
+            this.setState({
+                weatherData: axiosWeatherData.data,
+                alerte: false,
+            })
+        }
+        catch (massege) {
+            this.setState({
+
+                alerte: true,
+                massege: 'please enter valid city name',
+                display: false
+            })
+        }
+
     }
-  
-    render() {
-        return (
-            <>
-                <Apifiled alert={this.state.alert} masseg={this.state.masseg} />
-                <Form onSubmit={this.submitData}>
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label> City Name </Form.Label>
-                        <Form.Control type="text" placeholder="City Name" onChange={(e) => { this.ghngeHandlerSubmit(e) }} size={'sm'}
-                        />
 
-                    </Form.Group>
+        render() {
+            return (
+                <>
+                    <Apifiled alert={this.state.alert} masseg={this.state.masseg} alerte={this.state.alerte}
+                        massege={this.state.massege} />
+                    <Form onSubmit={this.submitData}>
+                        <Form.Group className="mb-3" controlId="formBasicEmail">
+                            <Form.Label> City Name </Form.Label>
+                            <Form.Control type="text" placeholder="City Name" onChange={(e) => { this.ghngeHandlerSubmit(e) }} size={'sm'}
+                            />
 
-                    <Button variant="primary" type="submit">
-                        Explore!
-                    </Button>
-                </Form>
-                {this.state.display &&
-                    <div>
-                        <p>
-                            {this.state.displayName}
-                            {this.state.latitude}
-                            {this.state.longitude}
-                            
-                            {this.state.weatherData.map(weatherData => {
-                    return <Weather desc={weatherData.description} date={weatherData.date} />
-                })}
-                        </p>
-                        <Image alt="" src={`https://maps.locationiq.com/v3/staticmap?key=pk.c29ec7745248a3f12771c0a5c3f3fd9e&center=${this.state.latitude},${this.state.longitude}&zoom=10`} rounded />
+                        </Form.Group>
 
-                        <span>
-                        </span>
+                        <Button variant="primary" type="submit">
+                            Explore!
+                        </Button>
+                    </Form>
+                    {this.state.display &&
+                        <div>
+                            <p>
+                                {this.state.displayName}
+                                {this.state.latitude}
+                                {this.state.longitude}
 
-                    </div>
 
-                }
-                {this.state.weatherData.map(weatherData => {
-                     <Weather desc={weatherData.description} date={weatherData.date} />
-                })
-                }
-            </>
-        )
+                            </p>
+                            <Image alt="" src={`https://maps.locationiq.com/v3/staticmap?key=pk.c29ec7745248a3f12771c0a5c3f3fd9e&center=${this.state.latitude},${this.state.longitude}&zoom=10`} rounded />
+
+                            <span>
+                            </span>
+
+                        </div>
+
+                    }
+                    {this.state.weatherData.map(weatherData => {
+                        return <Weather key="{item}" desc={weatherData.description}
+                            date={weatherData.date} />
+                    })
+                    }
+                </>
+            )
+        }
     }
-}
 
-export default Forms
+    export default Forms
 

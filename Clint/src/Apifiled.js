@@ -7,8 +7,16 @@ export class Apifiled extends Component {
             <div>
                 {this.props.alert &&
                     <Alert variant={'danger'}>
-                        {this.props.masseg}              </Alert>
+                        {this.props.masseg}    
+                        </Alert>
+                      
                 }
+                <>
+                {this.props.alerte &&
+                <Alert variant={'danger'}>
+                            {this.props.massege}
+                        </Alert>}
+                </>
             </div>
         )
     }
